@@ -1,0 +1,24 @@
+{
+  "properties": [
+    {
+      "id": 1,
+      "name": "Casa en el centro",
+      "address": "Av. Bolivar 123",
+      "price": 90000,
+      "status": "disponible",
+      "description": "Amplia casa con patio",
+      "typeId": 1,
+      "agentId": 1,
+      "clientId": 1
+    }
+  ],
+  "types": [
+    { "id": 1, "name": "Casa" }
+  ],
+  "agents": [
+    { "id": 1, "name": "Maria Lopez", "phone": "76543210", "email": "maria@inmuebles.com" }
+  ],
+  "clients": [
+    { "id": 1, "name": "Carlos Perez", "phone": "78888888", "email": "carlos@gmail.com" }
+  ]
+}
