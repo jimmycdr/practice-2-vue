@@ -1,96 +1,210 @@
 <template>
-    <div class="container py-4">
-        <h4 class="mb-4">{{ isEditMode ? 'Edit Contact' : 'New Contact' }}</h4>
+    <div class="flex justify-center">
 
-        <form @submit.prevent="submitForm" novalidate>
-            <div class="mb-3">
-                <label class="form-label">Name</label>
-                <input v-model="formData.name" type="text" class="form-control" required />
+        <Form v-slot="$form" :initialValues="initialValues" :resolver="resolver" :validateOnValueUpdate="false"
+            :validateOnBlur="true" @submit="onFormSubmit"
+            class="flex flex-col gap-4 w-full sm:w-96">
+
+            <div class="form-field">
+                <Select name="typesProperty" :options="typesProperty" optionLabel="name"
+                    placeholder="Seleccionar un tipo" fluid />
+                <Message v-if="$form.typesProperty?.invalid" severity="error" size="small" variant="simple">
+                    {{ $form.typesProperty.error?.message }}
+                </Message>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input v-model="formData.email" type="email" class="form-control" required />
+            <div class="form-field">
+                <InputText name="name" placeholder="Nombre de la Propiedad" fluid />
+                <Message v-if="$form.name?.invalid" severity="error" size="small" variant="simple">
+                    {{ $form.name.error?.message }}
+                </Message>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Address</label>
-                <input v-model="formData.address" type="text" class="form-control" />
+            <div class="form-field">
+                <Textarea name="address" rows="3" style="resize: none" placeholder="Dirección" />
+                <Message v-if="$form.address?.invalid" severity="error" size="small" variant="simple">
+                    {{ $form.address.error?.message }}
+                </Message>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Phone</label>
-                <input v-model="formData.phone" type="text" class="form-control" />
+            <div class="form-field">
+                <InputText name="price" type="number" placeholder="Precio" fluid />
+                <Message v-if="$form.price?.invalid" severity="error" size="small" variant="simple">
+                    {{ $form.price.error?.message }}
+                </Message>
             </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Country</label>
-                    <input v-model="formData.country" type="text" class="form-control" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">City</label>
-                    <input v-model="formData.city" type="text" class="form-control" />
-                </div>
+            <div class="form-field">
+                <Textarea name="description" rows="3" style="resize: none" placeholder="Descripción" />
+                <Message v-if="$form.description?.invalid" severity="error" size="small" variant="simple">
+                    {{ $form.description.error?.message }}
+                </Message>
             </div>
 
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-success">
-                    <i class="bi bi-save me-1"></i> {{ isEditMode ? 'Save Changes' : 'Create Contact' }}
-                </button>
-                <button type="button" class="btn btn-outline-secondary" @click="$emit('cancel')">
-                    <i class="bi bi-x-circle me-1"></i> Cancel
-                </button>
+            <div class="form-field">
+                <Select name="agent" :options="agents" optionLabel="name" placeholder="Seleccionar un agente" fluid />
+                <Message v-if="$form.agent?.invalid" severity="error" size="small" variant="simple">
+                    {{ $form.agent.error?.message }}
+                </Message>
             </div>
-        </form>
+
+            <div class="form-field">
+                <Select name="client" :options="clients" optionLabel="name" placeholder="Seleccionar un cliente"
+                    fluid />
+                <Message v-if="$form.client?.invalid" severity="error" size="small" variant="simple">
+                    {{ $form.client.error?.message }}
+                </Message>
+            </div>
+
+            <div class="flex footer-modal">
+                <Button label="Cancelar" outlined @click="$emit('cancel')" />
+                <Button type="submit" label="Guardar" />
+            </div>
+        </Form>
     </div>
 </template>
 
 <script>
+import { Form, InputText, Select, Textarea, Button, Message } from 'primevue';
+import { config } from '../config/config';
+
 export default {
     name: 'AddEditFormProperty',
+    components: {
+        Message,
+    },
     props: {
-        contact: {
+        propertyModel: {
             type: Object,
             default: () => ({
+                typesProperty: null,
                 name: '',
-                email: '',
                 address: '',
-                phone: '',
-                country: '',
-                city: ''
+                price: '',
+                description: '',
+                agent: null,
+                client: null
             })
         }
     },
-
     data() {
         return {
-            formData: { ...this.contact }
+            typesProperty: [],
+            clients: [],
+            agents: [],
+            initialValues: {
+                typesProperty: this.propertyModel.typesProperty || null,
+                name: this.propertyModel.name || '',
+                address: this.propertyModel.address || '',
+                price: this.propertyModel.price || '',
+                description: this.propertyModel.description || '',
+                agent: this.propertyModel.agent || null,
+                client: this.propertyModel.client || null
+            }
         };
     },
     computed: {
         isEditMode() {
-            return !!this.contact?.id;
+            return !!this.propertyModel?.id;
         }
     },
+    mounted() {
+        this.getTypeProperty();
+        this.getClients();
+        this.getAgents();
+    },
     methods: {
-        submitForm() {
-            
-            if (!this.formData.name || !this.formData.email) return
-            const payload = {
-                ...this.formData,
-                id: this.contact?.id || null
-            };
-            this.formData = {
-                name: '',
-                email: '',
-                address: '',
-                phone: '',
-                country: '',
-                city: ''
+        resolver({ values }) {
+            const errors = {};
+
+            if (!values.typesProperty) {
+                errors.typesProperty = [{ message: 'Tipo de propiedad requerido' }];
             }
+
+            if (!values.name) {
+                errors.name = [{ message: 'Nombre requerido' }];
+            }
+
+            if (!values.address) {
+                errors.address = [{ message: 'Dirección requerida' }];
+            }
+
+            if (!values.price) {
+                errors.price = [{ message: 'Precio requerido' }];
+            } else if (isNaN(values.price)) {
+                errors.price = [{ message: 'El precio debe ser numérico' }];
+            }
+
+            if (!values.description) {
+                errors.description = [{ message: 'Descripción requerida' }];
+            }
+
+            if (!values.agent) {
+                errors.agent = [{ message: 'Agente requerido' }];
+            }
+
+            if (!values.client) {
+                errors.client = [{ message: 'Cliente requerido' }];
+            }
+
+            return { errors };
+        },
+
+        onFormSubmit({ valid, states }) {
+            const values = {
+                typesProperty: states.typesProperty.value,
+                name: states.name.value,
+                address: states.address.value,
+                price: states.price.value,
+                description: states.description.value,
+                agent: states.agent.value,
+                client: states.client.value
+            };
+
+            const payload = {
+                ...values,
+                id: this.propertyModel?.id || null,
+                typeId: values.typesProperty?.id || null,
+                agentId: values.agent?.id || null,
+                clientId: values.client?.id || null
+            };
+
             this.$emit(this.isEditMode ? 'update' : 'created', payload);
+        },
+
+
+        getTypeProperty() {
+            this.axios
+                .get(`${config.apiUrl}/types`)
+                .then((res) => (this.typesProperty = res.data))
+                .catch((err) => console.error('Error cargando tipos:', err));
+        },
+
+        getClients() {
+            this.axios
+                .get(`${config.apiUrl}/clients`)
+                .then((res) => (this.clients = res.data))
+                .catch((err) => console.error('Error cargando clientes:', err));
+        },
+
+        getAgents() {
+            this.axios
+                .get(`${config.apiUrl}/agents`)
+                .then((res) => (this.agents = res.data))
+                .catch((err) => console.error('Error cargando agentes:', err));
         }
     }
 };
 </script>
+
+<style scoped>
+.form-field {
+    margin-bottom: 1rem;
+}
+
+.footer-modal {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+</style>

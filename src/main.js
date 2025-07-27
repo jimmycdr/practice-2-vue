@@ -19,7 +19,13 @@ import Tag from "primevue/tag";
 import InputText from "primevue/inputtext";
 import iconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
-import Dialog from 'primevue/dialog';
+import Dialog from "primevue/dialog";
+import { Form } from "@primevue/forms";
+import Select from 'primevue/select';
+import Textarea from 'primevue/textarea';
+import Message from 'primevue/message'
+import Fieldset from 'primevue/fieldset';
+
 
 createApp(App)
   .use(PrimeVue, {
@@ -42,5 +48,10 @@ createApp(App)
   .component("InputText", InputText)
   .component("IconField", iconField)
   .component("InputIcon", InputIcon)
-  .component("Dialog", Dialog)  
+  .component("Dialog", Dialog)
+  .component("Form", Form)
+  .component("Select", Select)
+  .component("Textarea", Textarea)
+  .component("Message", Message)
+  .component("Fieldset", Fieldset)
   .mount("#app");

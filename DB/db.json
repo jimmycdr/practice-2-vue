@@ -2,23 +2,110 @@
   "properties": [
     {
       "id": 1,
-      "name": "Casa en el centro",
-      "address": "Av. Bolivar 123",
-      "price": 90000,
+      "name": "Casa Colonial en el Centro",
+      "address": "Av. Bolívar 123",
+      "price": 95000,
       "status": "disponible",
-      "description": "Amplia casa con patio",
+      "description": "Hermosa casa colonial con amplio patio y garaje.",
       "typeId": 1,
       "agentId": 1,
+      "clientId": 2
+    },
+    {
+      "id": 2,
+      "name": "Departamento Moderno",
+      "address": "Calle Real 456, Zona Sur",
+      "price": 120000,
+      "status": "vendido",
+      "description": "Departamento con acabados modernos y excelente vista.",
+      "typeId": 2,
+      "agentId": 1,
+      "clientId": 3
+    },
+    {
+      "id": 3,
+      "name": "Lote en Urbanización Privada",
+      "address": "Carretera a Cotoca Km 12",
+      "price": 40000,
+      "status": "disponible",
+      "description": "Terreno plano ideal para construcción inmediata.",
+      "typeId": 3,
+      "agentId": 3,
       "clientId": 1
+    },
+    {
+      "id": 4,
+      "name": "Edificio de Oficinas",
+      "address": "Calle Comercio 201",
+      "price": 350000,
+      "status": "disponible",
+      "description": "Edificio de tres plantas ideal para empresas y oficinas.",
+      "typeId": 4,
+      "agentId": 3,
+      "clientId": 2
+    },
+    {
+      "id": 5,
+      "name": "Casa Familiar con Jardín",
+      "address": "Av. Los Pinos 987",
+      "price": 110000,
+      "status": "disponible",
+      "description": "Casa de 3 dormitorios con amplio jardín y garaje doble.",
+      "typeId": 1,
+      "agentId": 1,
+      "clientId": 3
     }
   ],
   "types": [
-    { "id": 1, "name": "Casa" }
+    {
+      "id": 1,
+      "name": "Casa"
+    },
+    {
+      "id": 2,
+      "name": "Departamento"
+    },
+    {
+      "id": 3,
+      "name": "Terreno"
+    },
+    {
+      "id": 4,
+      "name": "Edificio"
+    }
   ],
   "agents": [
-    { "id": 1, "name": "Maria Lopez", "phone": "76543210", "email": "maria@inmuebles.com" }
+    {
+      "id": 1,
+      "name": "Maria Lopez",
+      "phone": "76543210",
+      "email": "maria@inmuebles.com"
+    },
+    {
+      "id": 3,
+      "name": "Jorge Rojas",
+      "phone": "77771234",
+      "email": "jorge.rojas@inmobiliaria.com"
+    }
   ],
   "clients": [
-    { "id": 1, "name": "Carlos Perez", "phone": "78888888", "email": "carlos@gmail.com" }
+    {
+      "name": "Carlos Perez",
+      "phone": "78888888",
+      "email": "carlos@gmail.com",
+      "id": 1
+    },
+    {
+      "id": 2,
+      "name": "Lucía Fernández",
+      "phone": "71234567",
+      "email": "luciaf@gmail.com"
+    },
+    {
+      "id": 3,
+      "name": "Fernando Torres",
+      "phone": "72345678",
+      "email": "fernando.torres@correo.com"
+    }
   ]
 }
