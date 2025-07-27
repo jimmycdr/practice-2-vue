@@ -70,16 +70,16 @@
       "name": "Terreno"
     },
     {
-      "id": 4,
-      "name": "Edificio"
+      "name": "Edificio",
+      "id": 4
     }
   ],
   "agents": [
     {
-      "id": 1,
-      "name": "Maria Lopez",
+      "name": "Maria Lopez 1",
       "phone": "76543210",
-      "email": "maria@inmuebles.com"
+      "email": "maria@inmuebles.com",
+      "id": 1
     },
     {
       "id": 3,
@@ -90,7 +90,7 @@
   ],
   "clients": [
     {
-      "name": "Carlos Perez",
+      "name": "Carlos Perez 2",
       "phone": "78888888",
       "email": "carlos@gmail.com",
       "id": 1

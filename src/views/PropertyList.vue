@@ -3,53 +3,53 @@
     <h2>Propiedades</h2>
 
     <div class="card">
-      <DataTable :value="filteredProperties" stripedRows>
+      <DataTable :value="properties" stripedRows>
         <template #header>
           <div class="header-table">
             <IconField>
               <InputIcon>
                 <i class="pi pi-search" />
               </InputIcon>
-              <InputText placeholder="Realizar busqueda (Nombre, Direccion, Precio)" v-model="searchProperty" />
+              <InputText placeholder="Realizar búsqueda (Nombre, Dirección, Precio)" v-model="searchProperty" />
             </IconField>
             <Button icon="pi pi-plus" label="Agregar Nueva Propiedad" @click="openCreateModal" />
           </div>
           <Fieldset legend="Filtros" :toggleable="true">
             <div style="display: flex; flex-direction: row; gap: 1rem; flex-wrap: wrap; justify-content: space-between; padding: 10px;">
               <div style="display: flex; flex-direction: column">
-                <label for="searchProperty">Tipo de Propiedad</label>
-                <Select name="propertyType" :options="propertyTypes" optionLabel="name" placeholder="Seleccionar un tipo de propiedad" fluid
+                <label>Tipo de Propiedad</label>
+                <Select :options="propertyTypes" optionLabel="name" placeholder="Seleccionar un tipo"
                   v-model="propertyTypeFilter" />
               </div>
               <div style="display: flex; flex-direction: column">
-                <label for="searchProperty">Agente</label>
-                <Select name="agent" :options="agents" optionLabel="name" placeholder="Seleccionar un agente" fluid
+                <label>Agente</label>
+                <Select :options="agents" optionLabel="name" placeholder="Seleccionar un agente"
                   v-model="agentFilter" />
               </div>
               <div style="display: flex; flex-direction: column">
-                <label for="searchProperty">Cliente</label>
-                <Select name="client" :options="clients" optionLabel="name" placeholder="Seleccionar un cliente"
-                  v-model="clientFilter" fluid />
+                <label>Cliente</label>
+                <Select :options="clients" optionLabel="name" placeholder="Seleccionar un cliente"
+                  v-model="clientFilter" />
               </div>
               <div style="display: flex; flex-direction: column">
-                <label for="searchProperty">Estado</label>
-                <Select name="statusFilter" :options="['disponible', 'vendido']" placeholder="Seleccionar estado"
-                  v-model="statusFilter" class="w-full md:w-20rem" />
+                <label>Estado</label>
+                <Select :options="['disponible', 'vendido']" placeholder="Seleccionar estado"
+                  v-model="statusFilter" />
               </div>
             </div>
-            <div style="display: flex; flex-direction: row; justify-content: flex-end; gap: 1rem; padding-top: 10px;">
-              <Button label="Limpiar Filtros" outlined @click="searchProperty = ''; propertyTypeFilter = ''; agentFilter = ''; clientFilter = ''; statusFilter = ''" />
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; padding-top: 10px;">
+              <Button label="Limpiar Filtros" outlined @click="clearFilters" />
             </div>
-
           </Fieldset>
         </template>
+
         <Column field="id" header="ID"></Column>
         <Column field="type.name" header="Tipo"></Column>
         <Column field="name" header="Nombre"></Column>
-        <Column field="address" header="Direccion"></Column>
+        <Column field="address" header="Dirección"></Column>
         <Column field="price" header="Precio"></Column>
         <Column field="agent.name" header="Agente"></Column>
-        <Column field="description" header="Descripcion"></Column>
+        <Column field="description" header="Descripción"></Column>
         <Column field="client.name" header="Cliente"></Column>
         <Column field="status" header="Estado">
           <template #body="{ data }">
@@ -73,6 +73,7 @@
     <AddEditFormProperty @cancel="visible = false" @created="addNew" @update="updateProperty"
       :propertyModel="currentProperty" />
   </Dialog>
+
   <Dialog v-model:visible="confirmDeletevisible" modal header="Confirmar Eliminación" :style="{ width: '25rem' }">
     <p>¿Estás seguro de que deseas eliminar esta propiedad?</p>
     <template #footer>
@@ -88,9 +89,7 @@ import AddEditFormProperty from '../components/AddEditFormProperty.vue';
 
 export default {
   name: 'PropertyList',
-  components: {
-    AddEditFormProperty
-  },
+  components: { AddEditFormProperty },
   data() {
     return {
       confirmDeletevisible: false,
@@ -105,93 +104,111 @@ export default {
       agentFilter: '',
       clientFilter: '',
       statusFilter: '',
-      propertyTypeFilter: '',
+      propertyTypeFilter: ''
     };
   },
   mounted() {
-    this.getProperties();
     this.getClients();
     this.getAgents();
     this.getPropertyTypes();
+    this.getProperties();
+  },
+  watch: {
+    searchProperty: 'getProperties',
+    agentFilter: 'getProperties',
+    clientFilter: 'getProperties',
+    statusFilter: 'getProperties',
+    propertyTypeFilter: 'getProperties'
   },
   methods: {
+    clearFilters() {
+      this.searchProperty = '';
+      this.propertyTypeFilter = '';
+      this.agentFilter = '';
+      this.clientFilter = '';
+      this.statusFilter = '';
+    },
     getPropertyTypes() {
-      this.axios
-        .get(`${config.apiUrl}/types`)
-        .then((res) => (this.propertyTypes = res.data))
-        .catch((err) => console.error('Error cargando tipos de propiedad:', err));
+      this.axios.get(`${config.apiUrl}/types`)
+        .then(res => this.propertyTypes = res.data)
+        .catch(err => console.error('Error cargando tipos:', err));
     },
     getClients() {
-      this.axios
-        .get(`${config.apiUrl}/clients`)
-        .then((res) => (this.clients = res.data))
-        .catch((err) => console.error('Error cargando clientes:', err));
+      this.axios.get(`${config.apiUrl}/clients`)
+        .then(res => this.clients = res.data)
+        .catch(err => console.error('Error cargando clientes:', err));
     },
-
     getAgents() {
-      this.axios
-        .get(`${config.apiUrl}/agents`)
-        .then((res) => (this.agents = res.data))
-        .catch((err) => console.error('Error cargando agentes:', err));
+      this.axios.get(`${config.apiUrl}/agents`)
+        .then(res => this.agents = res.data)
+        .catch(err => console.error('Error cargando agentes:', err));
     },
     getProperties() {
-      this.axios.get(`${config.apiUrl}/properties?_expand=agent&_expand=type&_expand=client`)
-        .then(response => {
-          this.properties = response.data;
-        })
-        .catch(error => {
-          console.error("Error fetching properties:", error);
-        });
+      const params = {
+        _expand: ['agent', 'type', 'client']
+      };
+
+      if (this.searchProperty) {
+        params.q = this.searchProperty;
+      }
+      if (this.propertyTypeFilter?.id) {
+        params.typeId = this.propertyTypeFilter.id;
+      }
+      if (this.agentFilter?.id) {
+        params.agentId = this.agentFilter.id;
+      }
+      if (this.clientFilter?.id) {
+        params.clientId = this.clientFilter.id;
+      }
+      if (this.statusFilter) {
+        params.status = this.statusFilter;
+      }
+
+      this.axios.get(`${config.apiUrl}/properties`, { params })
+        .then(res => this.properties = res.data)
+        .catch(err => console.error('Error cargando propiedades:', err));
     },
     openCreateModal() {
       this.mode = 'create';
       this.currentProperty = {
         typesProperty: null,
-        name: null,
-        address: null,
+        name: '',
+        address: '',
         price: null,
-        description: null,
+        description: '',
         agent: null,
-        client: null,
+        client: null
       };
       this.visible = true;
     },
     getSeverity(status) {
       switch (status) {
-        case 'vendido':
-          return 'danger';
-
-        case 'disponible':
-          return 'success';
-
-        default:
-          return null;
+        case 'vendido': return 'danger';
+        case 'disponible': return 'success';
+        default: return null;
       }
     },
     saveProperty(property) {
-      const url = property.id ? `${config.apiUrl}/properties/${property.id}` : `${config.apiUrl}/properties`;
+      const url = property.id
+        ? `${config.apiUrl}/properties/${property.id}`
+        : `${config.apiUrl}/properties`;
       const method = property.id ? 'put' : 'post';
       property.status = property.status || 'disponible';
+
       this.axios[method](url, property)
         .then(() => {
           this.getProperties();
           this.visible = false;
         })
-        .catch(error => {
-          console.error("Error saving property:", error);
-        });
+        .catch(err => console.error("Error guardando propiedad:", err));
     },
     addNew(newItem) {
       this.visible = false;
       this.saveProperty(newItem);
     },
-    closeModal() {
-      this.visible = false;
-    },
     editProperty(property) {
       this.mode = 'edit';
-      this.currentProperty = { ...property };
-      this.currentProperty.typesProperty = property.type;
+      this.currentProperty = { ...property, typesProperty: property.type };
       this.visible = true;
     },
     updateProperty(updatedItem) {
@@ -207,41 +224,17 @@ export default {
           this.getProperties();
           this.confirmDeletevisible = false;
         })
-        .catch(error => {
-          console.error("Error deleting property:", error);
-        });
-    }
-  },
-  computed: {
-    filteredProperties() {
-      let results = [...this.properties];
-      if (this.propertyTypeFilter) {
-        results = results.filter(property => property.type && property.type.name.toLowerCase() === this.propertyTypeFilter.name.toLowerCase());
-      }
-      if (this.agentFilter) {
-        results = results.filter(property => property.agent && property.agent.name.toLowerCase() === this.agentFilter.name.toLowerCase());
-      }
-      if (this.clientFilter) {
-        results = results.filter(property => property.client && property.client.name.toLowerCase() === this.clientFilter.name.toLowerCase());
-      }
-      if (this.statusFilter) {
-        results = results.filter(property => property.status && property.status.toLowerCase() === this.statusFilter.toLowerCase());
-      }
-      return results.filter(property => {
-        return property.name.toLowerCase().includes(this.searchProperty.toLowerCase()) ||
-          property.address.toLowerCase().includes(this.searchProperty.toLowerCase()) ||
-          property.price.toString().toLowerCase().includes(this.searchProperty.toLowerCase())
-      });
+        .catch(err => console.error("Error eliminando propiedad:", err));
     }
   }
 };
 </script>
+
 <style scoped>
 .property-list {
   margin-top: 20px;
   padding: 20px;
 }
-
 .card {
   background-color: #fff;
   padding: 1.5rem;
@@ -249,10 +242,8 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-top: 1rem;
 }
-
 .header-table {
   display: flex;
-  direction: row;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
